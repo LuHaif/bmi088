@@ -70,10 +70,10 @@ int gpio_init(){
     sysfs_gpio_export(ACCEL_GPIO);
     sysfs_gpio_export(GYRO_GPIO);
     sysfs_gpio_set_dir(ACCEL_GPIO,OUT);
-    sysfs_gpio_set_dir(GYRO_GPIO,IN);
+    sysfs_gpio_set_dir(GYRO_GPIO,OUT);
 
-    ACC_FD = gpio_open(215);
-    GYRO_FD = gpio_open(214);
+    ACC_FD = gpio_open(ACCEL_GPIO);
+    GYRO_FD = gpio_open(GYRO_GPIO);
 }
 
 int sysfs_gpio_set_value(int fd, unsigned int value)
@@ -184,10 +184,11 @@ uint8_t BMI088_init(void)
 {
     uint8_t error = BMI088_NO_ERROR;
     // GPIO and SPI  Init .
-
-    error |= bmi088_accel_init();
-    error |= bmi088_gyro_init();
     gpio_init();
+    error |= bmi088_gyro_init();
+    error |= bmi088_accel_init();
+
+
     return error;
 }
 

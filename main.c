@@ -28,5 +28,7 @@ int main(){
     printf("temp %f \n", temp);
     clock_gettime(0,&end_time);
     printf("read operation used %f ms\n", ((end_time.tv_sec + end_time.tv_nsec/1e9) - (time.tv_sec + time.tv_nsec/1e9))*1000);
+    usleep(10);
+    // sleep(1);
   }
 }
