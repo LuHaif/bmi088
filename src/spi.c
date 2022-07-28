@@ -44,7 +44,7 @@
 
 #define SPI_DEBUG 0
 
-static const char *device = "/dev/spidev1.0";
+static const char *device = "/dev/spidev1.1";
 static uint8_t mode = 0; /* SPI通信使用全双工，设置CPOL＝0，CPHA＝0。 */
 static uint8_t bits = 8; /* ８ｂiｔｓ读写，MSB first。*/
 static uint32_t speed = 10 * 1000 * 1000;/* 设置12M传输速度 */
@@ -188,7 +188,7 @@ int SPI_Open(void)
 {
     int fd;
     int ret = 0;
-
+    uint8_t lsb = 0x01;
     if (g_SPI_Fd != 0) /* 设备已打开 */
         return 0xF1;
 
@@ -199,6 +199,7 @@ int SPI_Open(void)
         pr_debug("SPI - Open Succeed. Start Init SPI...\n");
 
     g_SPI_Fd = fd;
+    // mode = mode | 0x08 | 0x20;
     /*
      * spi mode
      */
@@ -231,6 +232,8 @@ int SPI_Open(void)
     ret = ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &speed);
     if (ret == -1)
         pabort("can't get max speed hz");
+  ret = ioctl(fd, SPI_IOC_RD_LSB_FIRST, &lsb);
+  if (ret < 0) perror("[ERROR] ioctl spi_ioc_rd_lsb_first (1)");
 
     pr_debug("spi mode: %d\n", mode);
     pr_debug("bits per word: %d\n", bits);

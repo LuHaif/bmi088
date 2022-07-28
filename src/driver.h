@@ -18,8 +18,8 @@
 #include <linux/types.h>
 #include <linux/spi/spidev.h>
 
-#define ACCEL_GPIO 214
-#define GYRO_GPIO 215
+#define ACCEL_GPIO 215
+#define GYRO_GPIO 214
 #define OUT 1
 #define IN 0
 #define BMI088_ACC_CHIP_ID 0x00 // the register is  " Who am I "
