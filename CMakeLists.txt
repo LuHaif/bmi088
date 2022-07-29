@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.18)
 
 project(demo)
 set(CMAKE_BUILD_TYPE Release)
@@ -16,4 +16,7 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME} "main.c" ${RCS_SRC_LIST})
+
+target_link_libraries(${PROJECT_NAME} -lpthread -lm -lrt -ldl -lstdc++)
+
 #target_link_libraries(demo -lz)

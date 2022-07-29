@@ -20,8 +20,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-int main(){
+#include "src/Fusion.h"
+#include <stdbool.h>
+#define SAMPLE_PERIOD (0.001f) // replace this with actual sample period
 
+int main(){
+  FusionAhrs ahrs;
+  FusionAhrsInitialise(&ahrs);
   SPI_Open();
   int rst = BMI088_init();
   printf("init rst %d \n",rst);
@@ -59,19 +64,20 @@ int main(){
   sleep(2);
   while(1){
     clock_gettime(0,&time);
-    // printf("timespec %d.%d\n",time.tv_sec, time.tv_nsec);
     BMI088_read(gyro, accel, &temp);
-    sprintf(recv_buf, "$%f %f %f %f %f %f;", gyro[0], gyro[1], gyro[2], accel[0], accel[1], accel[2]);
-        // printf("%d \n", strlen(recv_buf));
+    FusionVector gyroscope = {0.0f, 0.0f, 0.0f}; // replace this with actual gyroscope data in degrees/s
+    FusionVector accelerometer = {0.0f, 0.0f, 1.0f}; // replace this with actual accelerometer data in g
+    for(int i =0; i < 3; i++){
+      gyroscope.array[i] = gyro[i];
+      accelerometer.array[i] = accel[i];
+    }
+    FusionAhrsUpdateNoMagnetometer(&ahrs, gyroscope, accelerometer, SAMPLE_PERIOD);
+
+    const FusionEuler euler = FusionQuaternionToEuler(FusionAhrsGetQuaternion(&ahrs));
+    printf("%d.%d\r\n", time.tv_sec, time.tv_nsec);
+    // printf("Roll %f, Pitch %f, Yaw %f\n", euler.angle.roll, euler.angle.pitch, euler.angle.yaw);
+    sprintf(recv_buf, "$%f %f %f;", euler.angle.roll, euler.angle.pitch, euler.angle.yaw);
     sendto(sock_fd,recv_buf,strlen(recv_buf),0,(struct sockaddr *)(&server_addr),len);
-    // printf("accel  %+3.6f  %+3.6f  %+3.6f\n", accel[0],accel[1],accel[2]);
-    // usleep(1000);
-    // printf("gyro  %f  %f  %f\n", gyro[0],gyro[1],gyro[2]);
-    // printf("temp %f \n", temp);
-    // clock_gettime(0,&end_time);
-    // printf("read operation used %f ms\n", ((end_time.tv_sec + end_time.tv_nsec/1e9) - (time.tv_sec + time.tv_nsec/1e9))*1000);
-    // usleep(10);
-    // usleep(1000000);
-    // usleep(50000);
+    usleep(300);
   }
 }
